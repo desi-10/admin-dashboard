@@ -30,10 +30,7 @@ export async function listRecords(
   return data as ListRecordsResult;
 }
 
-export async function getTableMeta(
-  dbUrl: string,
-  tableName: string
-): Promise<TableMeta | null> {
+export async function getTableMeta(dbUrl: string, tableName: string) {
   const { data } = await axios.get(
     `/api/tables/${tableName}/meta?url=${encodeURIComponent(dbUrl)}`
   );

@@ -6,7 +6,7 @@ import { FiEdit2, FiTrash2, FiEye } from "react-icons/fi";
 import type { ColumnMeta } from "@/app/lib/types";
 
 export function generateColumns<TData, TValue>(
-  columnsMeta: ColumnMeta[]
+  columnsMeta: ColumnMeta[] | []
 ): ColumnDef<TData, TValue>[] {
   // -----------------------------------------------------
   // SELECT COLUMN

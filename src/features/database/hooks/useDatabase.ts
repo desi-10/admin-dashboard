@@ -58,7 +58,7 @@ export function useTableRecords({
 }
 
 export function useTableMeta(dbUrl: string | null, tableName: string | null) {
-  return useQuery<TableMeta | null>({
+  return useQuery({
     queryKey: ["tableMeta", dbUrl, tableName],
     queryFn: () => getTableMeta(dbUrl || "", tableName || ""),
     enabled: !!dbUrl && !!tableName,

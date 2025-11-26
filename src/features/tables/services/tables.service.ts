@@ -13,6 +13,10 @@ import {
   type DeleteResult,
   type TableMeta,
 } from "../types/tables.types";
+import {
+  loadRelationsForRecord,
+  loadRelationsForRows,
+} from "../utils/relationship-loader";
 
 export async function getAllTables(ctx: DbContext): Promise<TableMeta[]> {
   const validated = DbContextSchema.parse(ctx);
@@ -46,9 +50,11 @@ export async function listRecords(
   const queryParams = ListRecordsParamsSchema.parse(params);
 
   const db = getDB(validated.url);
-  if (!db) {
-    throw new Error("Failed to connect to database");
-  }
+  if (!db) throw new Error("Failed to connect to database");
+
+  const allTables = await getAllTables(ctx);
+  const table = allTables.find((t) => t.name === tableName);
+  if (!table) throw new Error(`Table ${tableName} not found`);
 
   const { page, limit, sortBy, sortOrder } = queryParams;
   const offset = (page - 1) * limit;
@@ -65,14 +71,20 @@ export async function listRecords(
     .limit(limit)
     .offset(offset);
 
-  if (sortBy) {
-    query = query.orderBy(sortBy as never, sortOrder);
-  }
+  if (sortBy) query = query.orderBy(sortBy as never, sortOrder);
 
-  const data = await query.execute();
+  const rows = await query.execute();
+
+  // ⬇ Load relations for each row
+  const relationalRows = await loadRelationsForRows(
+    db,
+    table,
+    rows as Record<string, unknown>[],
+    allTables
+  );
 
   return {
-    data: data as Record<string, unknown>[],
+    data: relationalRows,
     total,
     page,
     limit,
@@ -89,9 +101,11 @@ export async function getRecord(
   const validatedId = RecordIdSchema.parse(id);
 
   const db = getDB(validated.url);
-  if (!db) {
-    throw new Error("Failed to connect to database");
-  }
+  if (!db) throw new Error("Failed to connect to database");
+
+  const allTables = await getAllTables(ctx);
+  const table = allTables.find((t) => t.name === tableName);
+  if (!table) return null;
 
   const pkColumn = await getPrimaryKey(ctx, tableName);
 
@@ -101,7 +115,15 @@ export async function getRecord(
     .where(pkColumn as never, "=", validatedId as never)
     .executeTakeFirst();
 
-  return (result as Record<string, unknown>) ?? null;
+  if (!result) return null;
+
+  // ⬇ Include relations
+  return await loadRelationsForRecord(
+    db,
+    table,
+    result as Record<string, unknown>,
+    allTables
+  );
 }
 
 export async function createRecord(

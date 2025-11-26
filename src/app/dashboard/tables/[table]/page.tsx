@@ -1,34 +1,30 @@
 "use client";
 
-import { useState, use, useMemo, useCallback, useEffect } from "react";
-import { ColumnDef } from "@tanstack/react-table";
+import { useState, use } from "react";
 import { useDatabase } from "@/features/database/context/DatabaseContext";
 import {
   useTableRecords,
   useTableMeta,
-  useCreateRecord,
-  useUpdateRecord,
-  useDeleteRecord,
-  useBatchDeleteRecords,
+  // useCreateRecord,
+  // useUpdateRecord,
+  // useDeleteRecord,
+  // useBatchDeleteRecords,
 } from "@/features/database/hooks/useDatabase";
 import { DataTable } from "@/components/data-table";
 import { generateColumns } from "@/features/tables/utils/columns";
-import { getSelectColumn, getActionsColumn } from "@/components/columns";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { MdOutlineAdd, MdOutlineRefresh } from "react-icons/md";
-import type { TableMeta } from "@/app/lib/types";
+// import { Button } from "@/components/ui/button";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogFooter,
+// } from "@/components/ui/dialog";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import type { TableMeta } from "@/app/lib/types";
 
-type RecordData = Record<string, unknown>;
+// type RecordData = Record<string, unknown>;
 
 interface PageProps {
   params: Promise<{ table: string }>;
@@ -39,55 +35,47 @@ export default function TablePage({ params }: PageProps) {
   const { dbUrl } = useDatabase();
 
   const [page] = useState(1);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<RecordData | null>(null);
-  const [formData, setFormData] = useState<RecordData>({});
+  // const [, setIsCreateOpen] = useState(false);
+  // const [isEditOpen, setIsEditOpen] = useState(false);
+  // const [editingRecord, setEditingRecord] = useState<RecordData | null>(null);
+  // const [formData, setFormData] = useState<RecordData>({});
 
-  const {
-    data: recordsData,
-    isLoading,
-    error,
-    refetch,
-  } = useTableRecords({
+  const { data: recordsData } = useTableRecords({
     dbUrl: dbUrl || "",
     tableName,
     page,
     limit: 50,
   });
 
-  const { data: tableMeta, isLoading: isTableMetaLoading } = useTableMeta(
-    dbUrl,
-    tableName
-  );
+  const { data: tableMeta } = useTableMeta(dbUrl, tableName);
 
-  const createRecord = useCreateRecord();
-  const updateRecord = useUpdateRecord();
-  const deleteRecord = useDeleteRecord();
-  const batchDelete = useBatchDeleteRecords();
+  // const createRecord = useCreateRecord();
+  // const updateRecord = useUpdateRecord();
+  // const deleteRecord = useDeleteRecord();
+  // const batchDelete = useBatchDeleteRecords();
 
-  const getPrimaryKeyColumn = () => {
-    if (!tableMeta) return null;
-    return tableMeta.columns.find((c) => c.primaryKey);
-  };
+  // const getPrimaryKeyColumn = () => {
+  //   if (!tableMeta) return null;
+  //   return tableMeta.data?.columns.find((c: ColumnMeta) => c.primaryKey);
+  // };
 
-  const getPrimaryKeyValue = (record: RecordData): string | number | null => {
-    const pkCol = getPrimaryKeyColumn();
-    if (!pkCol) return null;
-    return record[pkCol.name] as string | number;
-  };
+  // const getPrimaryKeyValue = (record: RecordData): string | number | null => {
+  //   const pkCol = getPrimaryKeyColumn();
+  //   if (!pkCol) return null;
+  //   return record[pkCol.name] as string | number;
+  // };
 
-  const handleCreate = async () => {
-    if (!dbUrl) return;
+  // const handleCreate = async () => {
+  //   if (!dbUrl) return;
 
-    try {
-      await createRecord.mutateAsync({ dbUrl, tableName, data: formData });
-      setIsCreateOpen(false);
-      setFormData({});
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to create record");
-    }
-  };
+  //   try {
+  //     await createRecord.mutateAsync({ dbUrl, tableName, data: formData });
+  //     setIsCreateOpen(false);
+  //     setFormData({});
+  //   } catch (err) {
+  //     alert(err instanceof Error ? err.message : "Failed to create record");
+  //   }
+  // };
 
   const columns = generateColumns(tableMeta?.data?.columns || []);
 
@@ -123,99 +111,99 @@ export default function TablePage({ params }: PageProps) {
   );
 }
 
-interface RecordDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  tableMeta: TableMeta;
-  formData: RecordData;
-  setFormData: (data: RecordData) => void;
-  onSubmit: () => Promise<void>;
-  submitLabel: string;
-  isSubmitting: boolean;
-}
+// interface RecordDialogProps {
+//   open: boolean;
+//   onOpenChange: (open: boolean) => void;
+//   title: string;
+//   tableMeta: TableMeta;
+//   formData: RecordData;
+//   setFormData: (data: RecordData) => void;
+//   onSubmit: () => Promise<void>;
+//   submitLabel: string;
+//   isSubmitting: boolean;
+// }
 
-function RecordDialog({
-  open,
-  onOpenChange,
-  title,
-  tableMeta,
-  formData,
-  setFormData,
-  onSubmit,
-  submitLabel,
-  isSubmitting,
-}: RecordDialogProps) {
-  const editableColumns = tableMeta.columns?.filter(
-    (col) => !col.primaryKey || col.defaultValue !== "autoincrement"
-  );
+// function RecordDialog({
+//   open,
+//   onOpenChange,
+//   title,
+//   tableMeta,
+//   formData,
+//   setFormData,
+//   onSubmit,
+//   submitLabel,
+//   isSubmitting,
+// }: RecordDialogProps) {
+//   const editableColumns = tableMeta.columns?.filter(
+//     (col) => !col.primaryKey || col.defaultValue !== "autoincrement"
+//   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await onSubmit();
-  };
+//   const handleSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     await onSubmit();
+//   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            {editableColumns?.map((col) => (
-              <div
-                key={col.name}
-                className="grid grid-cols-4 items-center gap-4"
-              >
-                <Label htmlFor={col.name} className="text-right">
-                  {col.name}
-                  {!col.nullable && (
-                    <span className="text-red-500 ml-1">*</span>
-                  )}
-                </Label>
-                <div className="col-span-3">
-                  <Input
-                    id={col.name}
-                    value={
-                      formData[col.name] != null
-                        ? String(formData[col.name])
-                        : ""
-                    }
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        [col.name]: e.target.value || null,
-                      })
-                    }
-                    placeholder={`${col.type}${
-                      col.nullable ? " (optional)" : ""
-                    }`}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Type: {col.type}
-                    {col.foreignKey &&
-                      ` → ${col.foreignKey.table}.${col.foreignKey.column}`}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : submitLabel}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
+//   return (
+//     <Dialog open={open} onOpenChange={onOpenChange}>
+//       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+//         <DialogHeader>
+//           <DialogTitle>{title}</DialogTitle>
+//         </DialogHeader>
+//         <form onSubmit={handleSubmit}>
+//           <div className="grid gap-4 py-4">
+//             {editableColumns?.map((col) => (
+//               <div
+//                 key={col.name}
+//                 className="grid grid-cols-4 items-center gap-4"
+//               >
+//                 <Label htmlFor={col.name} className="text-right">
+//                   {col.name}
+//                   {!col.nullable && (
+//                     <span className="text-red-500 ml-1">*</span>
+//                   )}
+//                 </Label>
+//                 <div className="col-span-3">
+//                   <Input
+//                     id={col.name}
+//                     value={
+//                       formData[col.name] != null
+//                         ? String(formData[col.name])
+//                         : ""
+//                     }
+//                     onChange={(e) =>
+//                       setFormData({
+//                         ...formData,
+//                         [col.name]: e.target.value || null,
+//                       })
+//                     }
+//                     placeholder={`${col.type}${
+//                       col.nullable ? " (optional)" : ""
+//                     }`}
+//                   />
+//                   <p className="text-xs text-muted-foreground mt-1">
+//                     Type: {col.type}
+//                     {col.foreignKey &&
+//                       ` → ${col.foreignKey.table}.${col.foreignKey.column}`}
+//                   </p>
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//           <DialogFooter>
+//             <Button
+//               type="button"
+//               variant="outline"
+//               onClick={() => onOpenChange(false)}
+//               disabled={isSubmitting}
+//             >
+//               Cancel
+//             </Button>
+//             <Button type="submit" disabled={isSubmitting}>
+//               {isSubmitting ? "Saving..." : submitLabel}
+//             </Button>
+//           </DialogFooter>
+//         </form>
+//       </DialogContent>
+//     </Dialog>
+//   );
+// }
