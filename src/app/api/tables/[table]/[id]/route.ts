@@ -22,7 +22,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const url = request.nextUrl.searchParams.get("url");
 
     QuerySchema.parse({ url });
-
     const record = await tableService.getRecord({ url: url! }, table, id);
 
     if (!record) {

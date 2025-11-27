@@ -1,9 +1,36 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { MdOutlineKey, MdOutlineLink } from "react-icons/md";
 import { FiEdit2, FiTrash2, FiEye } from "react-icons/fi";
 import type { ColumnMeta } from "@/app/lib/types";
+
+/**
+ * Converts various naming conventions to a readable format
+ * Examples:
+ * - camelCase: "firstName" → "First Name"
+ * - snake_case: "user_id" → "User Id"
+ * - kebab-case: "user-name" → "User Name"
+ * - PascalCase: "FirstName" → "First Name"
+ * - Already readable: "First Name" → "First Name"
+ */
+function toReadableName(name: string): string {
+  if (!name) return "";
+
+  // Split on underscores, hyphens, and capital letters
+  const words = name
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // Split camelCase: "firstName" → "first Name"
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2") // Split consecutive capitals: "XMLHttpRequest" → "XML Http Request"
+    .split(/[_\s-]+/) // Split on underscores, spaces, and hyphens
+    .filter(Boolean); // Remove empty strings
+
+  // Capitalize first letter of each word and lowercase the rest
+  return words
+    .map((word) => {
+      if (!word) return "";
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
 
 export function generateColumns<TData, TValue>(
   columnsMeta: ColumnMeta[] | []
@@ -42,14 +69,14 @@ export function generateColumns<TData, TValue>(
     accessorKey: col.name,
     header: () => (
       <div className="flex items-center gap-1">
-        {col.primaryKey && (
+        {/* {col.primaryKey && (
           <MdOutlineKey size={14} className="text-yellow-500" />
         )}
         {col.foreignKey && (
           <MdOutlineLink size={14} className="text-blue-500" />
-        )}
-        <span>{col.name}</span>
-        <span className="text-xs text-muted-foreground ml-1">({col.type})</span>
+        )} */}
+        <span>{toReadableName(col.name)}</span>
+        {/* <span className="text-xs text-muted-foreground ml-1">({col.type})</span> */}
       </div>
     ),
     cell: ({ getValue }) => {
